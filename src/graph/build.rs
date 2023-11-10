@@ -54,7 +54,7 @@ pub fn edges_to_adj(edges: Vec<usize>) -> Vec<Vec<usize>> {
   }
   let len: usize = mp.len();
   let mut adj: Vec<Vec<usize>> = Vec::with_capacity(len);
-  
+  println!("Graph having |V| = {len}");
   for (i, (_k, v)) in mp.iter_mut().enumerate() {
     adj.push(Vec::with_capacity(*v));
     *v = i;

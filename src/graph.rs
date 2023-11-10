@@ -2,7 +2,9 @@ use std::rc::{Rc, Weak};
 
 mod build;
 mod util;
-pub mod pos;
+mod pos;
+
+pub use pos::GraphPos;
 
 pub struct CoarsenLink {
   g0: Rc<Graph>,
@@ -59,7 +61,7 @@ impl Graph {
     &self.adj[idx]
   }
 
-  pub fn coarsen(&self) -> (Rc<Graph>, CoarsenLink) {
+  pub fn coarsen(&self) -> CoarsenLink {
     let len: usize = self.len();
     
     let mut keep: Vec<usize> = vec![0; len];
@@ -80,6 +82,7 @@ impl Graph {
     let mut mapping: Vec<usize> = Vec::with_capacity(len1);
     let mut idx: usize = 0;
     let mut adj_dis2: Vec<Vec<usize>> = Vec::with_capacity(len1);
+    let mut adj_dis3: Vec<Vec<usize>> = Vec::with_capacity(len1);
     for idx1 in 0..len1 {
       while idx < len && keep[idx] == len {
         idx += 1;
@@ -92,12 +95,15 @@ impl Graph {
       util::set_vec_at_idxs_to(&mut visited, ns1, true);
 
       let ns2: Vec<usize> = util::get_nexts_nexts(self, &mut visited, &ns1);
-      
+      let ns3: Vec<usize> = util::get_nexts_nexts(self, &mut visited, &ns2);
+
+      util::set_vec_at_idxs_to(&mut visited, &ns3, false);
       util::set_vec_at_idxs_to(&mut visited, &ns2, false);
       util::set_vec_at_idxs_to(&mut visited, ns1, false);
 
       visited[idx] = false;
       adj_dis2.push(ns2);
+      adj_dis3.push(ns3);
       idx += 1;
     }
     
@@ -112,7 +118,23 @@ impl Graph {
       }
       adj1.push(nexts1); 
     }
-    let g1 = Graph::from_adj(adj1);
-    (Rc::clone(&g1), CoarsenLink { g0: Rc::clone(&self.me.upgrade().unwrap()), g1: Rc::clone(&g1), mapping})
+
+    let (count, belong) = util::get_groups(&adj1);
+    if count > 0 {
+      for i1 in 0..len1 {
+        let ref mut nexts1 = adj1[i1];
+        
+        for j0 in adj_dis3[i1].iter() {
+          if keep[*j0] < len {
+            let j1 = keep[*j0];
+            // print!("{} ", keep[*next]);
+            if belong[j1] != belong[i1] {
+              nexts1.push(j1);
+            }
+          }
+        }
+      }
+    }
+    CoarsenLink { g0: Rc::clone(&self.me.upgrade().unwrap()), g1:Graph::from_adj(adj1), mapping}
   }
 }
