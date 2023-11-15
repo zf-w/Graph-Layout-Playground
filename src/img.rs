@@ -55,8 +55,8 @@ impl Img {
       }
       let offset = self.get_index(row, col);
       // for d in 0..4 {
-      self.data[(offset * 4 + 0) as usize] = 204;
-      self.data[(offset * 4 + 1) as usize] = 0;
+      self.data[(offset * 4 + 0) as usize] = 255;
+      self.data[(offset * 4 + 1) as usize] = 255;
       self.data[(offset * 4 + 2) as usize] = 255;
       self.data[(offset * 4 + 3) as usize] = 255;
       // }
@@ -82,8 +82,8 @@ impl Img {
       let w = self.w as f32;
       let h = self.h as f32;
       self.draw_line((r0 * w) as usize,
-       (c0 * h) as usize,
-        (r1 * w) as usize,
-         (c1 * h) as usize);
+      (c0 * h) as usize,
+      (r1 * w) as usize,
+      (c1 * h) as usize);
     }
 }

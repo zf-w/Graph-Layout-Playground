@@ -21,7 +21,7 @@ pub fn get_nexts_nexts(g: &Graph, v: &mut Vec<bool>, ns: &Vec<usize>) -> Vec<usi
   ans
 }
 
-pub fn get_groups(adj: &Vec<Vec<usize>>) ->(usize, Vec<usize>) {
+pub fn get_groups(adj: &Vec<Vec<usize>>) ->(Vec<usize>, Vec<usize>) {
   let len: usize = adj.len();
   let mut v: Vec<bool> = vec![false; len];
   let mut res: Vec<usize> = Vec::with_capacity(len);
@@ -50,12 +50,17 @@ pub fn get_groups(adj: &Vec<Vec<usize>>) ->(usize, Vec<usize>) {
     }
     let mut q: VecDeque<usize> = VecDeque::new();
     q.push_back(i);
+    res[i] = count; // Bug here, forgot to set the first one
     v[i] = true;
     while !q.is_empty() {
       iter_bfs_nexts(&adj, &mut q, &mut v, &mut res, count);
     }
     count += 1;
   }
+  let mut sizes: Vec<usize> = vec![0; count];
+  for belong in res.iter() {
+    sizes[*belong] += 1;
+  }
 
-  (count, res)
+  (sizes, res)
 }
