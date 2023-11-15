@@ -45,7 +45,7 @@ pub fn run_draw(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
   let g_pos: GraphPos = GraphPos::new(g, position, dim)?;
 
   let mut img = Img::new(config.width, config.width);
-  g_pos.draw_to_img(&mut img);
+  g_pos.draw_to_img(&mut img, true);
   img.save("data/output.png")?;
 
   Ok(())

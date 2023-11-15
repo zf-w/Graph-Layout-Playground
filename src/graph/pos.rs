@@ -4,7 +4,13 @@ use serde::Serializer;
 use serde::ser::Serialize;
 use serde::ser::SerializeStruct;
 
+mod normalizer;
+
 use crate::img::Img;
+
+use self::normalizer::normalize2d_center;
+// use self::normalizer::normalize2d_center;
+use self::normalizer::normalize2d_full;
 
 use super::Graph;
 use super::CoarsenLink;
@@ -46,52 +52,13 @@ impl GraphPos {
     Ok((g1, link, g1_pos))
   }
 
-
-  fn normalize2d(&self) -> Vec<f32> {
-    let dim = self.dim as usize;
-    let size: usize = self.pos.len() / dim;
+  pub fn draw_to_img(&self, img: &mut Img, full: bool) {
     let d2: usize = 2;
-    let mut res: Vec<f32> = Vec::with_capacity(size * d2);
-    for i in 0..size {
-      res.push(self.pos[i * dim + 0]);
-      res.push(self.pos[i * dim + 1]);
-    }
-
-    let mut x: f32 = 0.0;
-    let mut y: f32 = 0.0;
-
-    for i in 0..size {
-      x += res[i * d2];
-      y += res[i * d2 + 1];
-    }
-
-    x /= size as f32;
-    y /= size as f32;
-
-    for i in 0..size {
-      res[i * d2] -= x;
-      res[i * d2 + 1] -= y;
-    }
-    let mut max_r: f32 = 0.0;
-    for i in 0..size {
-      let curr = res[i * d2].powi(2) + res[i * d2 + 1].powi(2);
-      max_r = max_r.max(curr);
-    }
-
-    max_r = max_r.sqrt() * 1.1;
-
-    for v in res.iter_mut() {
-      *v /= max_r;
-      *v /= 2.0;
-      *v += 0.5;
-    }
-
-    res
-  }
-
-  pub fn draw_to_img(&self, img: &mut Img) {
-    let d2: usize = 2;
-    let pos_2 = self.normalize2d();
+    let pos_2 = if full {
+      normalize2d_full(&self.pos, self.dim as usize)
+    } else {
+      normalize2d_center(&self.pos, self.dim as usize)
+    };
     
     for (i, nexts) in self.g.adj.iter().enumerate() {
       let item0 = &pos_2[(i * d2)..(i * d2 + d2)];
