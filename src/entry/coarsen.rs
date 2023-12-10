@@ -3,25 +3,26 @@ use std::{fs, rc::Rc};
 use crate::graph::Graph;
 use crate::graph::GraphPos;
 
+use clap::ArgMatches;
+
 struct Config<'a> {
   file: &'a str,
   level: u16,
 }
 
 impl<'a> Config<'a> {
-  pub fn new(args: &'a [String]) -> Result<Self, &'static str> {
-    let len: usize = args.len();
-    if len < 3 {
-      return Err("Not enough arguments for command coarsen? Did you include the graph file?");
-    }
+  pub fn new(sub_matches: &'a ArgMatches) -> Result<Self, &'static str> {
+    let file = sub_matches.get_one::<String>("file").expect("required");
 
-    let mut level = 1;
-    
-    if let Ok(num) = &args[3].parse::<u16>() {
-      level = *num;
-    }
+    let depth = 
+    match sub_matches.get_one::<String>("depth") {
+      Some(str) => {
+        str.parse::<u16>().unwrap_or(1)
+      }
+      _ => 1
+    };
 
-    Ok(Config { file: &args[2], level })
+    Ok(Config { file, level: depth })
   }
 }
 
@@ -39,7 +40,7 @@ fn coarsen_with_pos(mut g_pos: GraphPos, level: u16) -> Result<(), Box<dyn std::
   Ok(())
 }
 
-pub fn run_coarsen(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run_coarsen(args: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
   let config = Config::new(args)?;
   let contents: String = fs::read_to_string(config.file)?;
 

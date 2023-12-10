@@ -1,11 +1,9 @@
-use std::{env, process};
-use graph_layout::run;
+use std::process;
+use graph::run;
 
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if let Err(e) = run(&args) {
+    if let Err(e) = run() {
         eprintln!("Sorry, there is an error: {e}");
         process::exit(1);
     }

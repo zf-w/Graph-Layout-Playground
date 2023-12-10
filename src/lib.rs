@@ -11,18 +11,42 @@ struct Input {
   pub dim: Option<u8>
 }
 
-pub fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
-  
-  if args.len() < 2 {
-    return Err("Not enough arguments?".into());
-  }
+use clap::{arg, Command, ArgMatches};
 
-  match args[1].as_str() {
-    "coarsen" => {
-      entry::run_coarsen(args)?;
+fn cli() -> Command {
+  Command::new("graph")
+  .about("A tool for Graph Visualization")
+  .subcommand_required(true)
+  .allow_external_subcommands(true)
+  .subcommand(
+    Command::new("coarsen")
+    .about("graph coarsen")
+    .arg(arg!(<file> "The JSON file of a graph").required(true))
+    .arg(arg!(<depth> "The maximum level of coarsening iteration"))
+    
+  )
+  .subcommand(
+    Command::new("draw")
+    .about("Draw a graph")
+    .arg(arg!(<file> "The JSON file of a graph").required(true))
+    .arg(
+      arg!(-w -- width <width> "The width of the output image")
+      .default_value("1080")
+    )
+    
+  )
+}
+
+pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+
+  let matches: ArgMatches = cli().get_matches();
+
+  match matches.subcommand() {
+    Some(("coarsen", sub_matches)) => {
+      entry::run_coarsen(sub_matches)?;
     },
-    "draw" => {
-      entry::run_draw(args)?;
+    Some(("draw", sub_matches)) => {
+      entry::run_draw(sub_matches)?;
     },
     _ => return Err("Command not recoginzed?".into()),
   }
