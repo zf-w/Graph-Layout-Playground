@@ -2,9 +2,9 @@ use std::{fs, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use crate::graph::Graph;
-use crate::graph::GraphPos;
-use crate::img::Img;
+use graph::Graph;
+use graph::graph::GraphPos;
+use graph::img::Img;
 
 struct Config<'a> {
   file: &'a str,
@@ -12,19 +12,18 @@ struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-  pub fn new(args: &'a [String]) -> Result<Self, &'static str> {
-    let len: usize = args.len();
-    if len < 3 {
-      return Err("Not enough arguments for command coarsen? Did you include the graph file?");
-    }
+  pub fn new(sub_matches: &'a ArgMatches) -> Result<Self, &'static str> {
+    let file = sub_matches.get_one::<String>("json").expect("required");
 
-    let width: u32 = if let Ok(num) = &args[3].parse::<u32>() {
-      *num
-    } else {
-      1080
+    let width: u32 = 
+    match sub_matches.get_one::<String>("width") {
+      Some(str) => {
+        str.parse::<u32>().unwrap_or(1)
+      }
+      _ => 1080
     };
 
-    Ok(Config { file: &args[2],  width })
+    Ok(Config { file,  width })
   }
 }
 
@@ -35,8 +34,10 @@ struct Input {
   pub dim: u8
 }
 
-pub fn run_draw(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
-  let config = Config::new(args)?;
+use clap::ArgMatches;
+
+pub fn run_draw(sub_matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+  let config = Config::new(sub_matches)?;
   let contents: String = fs::read_to_string(config.file)?;
 
   let Input {indices, position, dim} = serde_json::from_str(&contents)?;
