@@ -1,4 +1,5 @@
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
+use crate::Graph;
 
 mod build;
 mod util;
@@ -17,11 +18,6 @@ impl CoarsenLink {
   pub fn mapping(&self) -> &Vec<usize> {
     &self.mapping
   }
-}
-
-pub struct Graph {
-  adj: Vec<Vec<usize>>,
-  me: Weak<Self>
 }
 
 impl Graph {

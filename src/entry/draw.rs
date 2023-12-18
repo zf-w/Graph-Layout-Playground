@@ -2,9 +2,9 @@ use std::{fs, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use crate::graph::Graph;
-use crate::graph::GraphPos;
-use crate::img::Img;
+use graph::Graph;
+use graph::graph::GraphPos;
+use graph::img::Img;
 
 struct Config<'a> {
   file: &'a str,
@@ -13,7 +13,7 @@ struct Config<'a> {
 
 impl<'a> Config<'a> {
   pub fn new(sub_matches: &'a ArgMatches) -> Result<Self, &'static str> {
-    let file = sub_matches.get_one::<String>("file").expect("required");
+    let file = sub_matches.get_one::<String>("json").expect("required");
 
     let width: u32 = 
     match sub_matches.get_one::<String>("width") {
