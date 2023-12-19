@@ -6,7 +6,7 @@ use serde::ser::SerializeStruct;
 
 mod normalizer;
 
-use crate::img::Img;
+use crate::img::Drawable;
 
 use self::normalizer::normalize2d_center;
 // use self::normalizer::normalize2d_center;
@@ -52,7 +52,7 @@ impl GraphPos {
     Ok((g1, link, g1_pos))
   }
 
-  pub fn draw_to_img(&self, img: &mut Img, full: bool) {
+  pub fn draw_to_img(&self, img: &mut dyn Drawable, full: bool) {
     let d2: usize = 2;
     let pos_2 = if full {
       normalize2d_full(&self.pos, self.dim as usize)

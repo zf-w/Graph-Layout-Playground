@@ -1,11 +1,28 @@
+use graph::img::{Drawable, Svg};
 use std::{fs, rc::Rc};
-
-use serde::{Deserialize, Serialize};
 
 use graph::Graph;
 use graph::graph::GraphPos;
-use graph::img::Img;
 
+use clap::ArgMatches;
+
+pub fn draw_cli() -> clap::Command {
+  clap::Command::new("draw")
+    .about("Draw a graph")
+    .arg(
+      clap::Arg::new("json")
+      .help("The path to the JSON file of your input graph")
+      .required(true)
+      // clap::arg!(<file> "The JSON file of a graph").required(true))
+    )
+    .arg(
+      clap::Arg::new("width")
+      .short('w')
+      .long("width")
+      .help("The width of the output image")
+      .default_value("1080")
+    )
+}
 struct Config<'a> {
   file: &'a str,
   width: u32,
@@ -27,14 +44,7 @@ impl<'a> Config<'a> {
   }
 }
 
-#[derive(Deserialize, Serialize)]
-struct Input {
-  pub indices: Vec<usize>,
-  pub position: Vec<f32>,
-  pub dim: u8
-}
-
-use clap::ArgMatches;
+use graph::Input;
 
 pub fn run_draw(sub_matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
   let config = Config::new(sub_matches)?;
@@ -43,11 +53,11 @@ pub fn run_draw(sub_matches: &ArgMatches) -> Result<(), Box<dyn std::error::Erro
   let Input {indices, position, dim} = serde_json::from_str(&contents)?;
 
   let g: Rc<Graph> = Graph::from_edge_list(indices);
-  let g_pos: GraphPos = GraphPos::new(g, position, dim)?;
+  let g_pos: GraphPos = GraphPos::new(g, position.expect("Should have position"), dim.expect("Should have dim"))?;
 
-  let mut img = Img::new(config.width, config.width);
+  let mut img = Svg::new(config.width, config.width);//Img::new(config.width, config.width);
   g_pos.draw_to_img(&mut img, true);
-  img.save("data/output.png")?;
+  img.save("data/output.svg")?;
 
   Ok(())
 }
