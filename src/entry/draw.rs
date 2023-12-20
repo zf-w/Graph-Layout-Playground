@@ -5,11 +5,13 @@ use std::{fs, rc::Rc};
 use graph::Graph;
 use graph::graph::GraphPos;
 
+const GRAPH_JSON: &str = "graph_json";
+
 pub fn draw_cli() -> clap::Command {
   clap::Command::new("draw")
     .about("Draw a graph")
     .arg(
-      clap::Arg::new("JSON")
+      clap::Arg::new(GRAPH_JSON)
       .help("The path to the JSON file of your input graph")
       .value_parser(clap::value_parser!(PathBuf))
       .required(true)
@@ -46,7 +48,7 @@ struct Config<'a> {
 
 impl<'a> Config<'a> {
   pub fn new(sub_matches: &'a clap::ArgMatches) -> Result<Self, &'static str> {
-    let file = sub_matches.get_one::<PathBuf>("JSON").expect("required");
+    let file = sub_matches.get_one::<PathBuf>(GRAPH_JSON).expect("required");
     let out = sub_matches.get_one::<PathBuf>("out").expect("Should have a default value");
     let draw_full = !sub_matches.get_flag("mass");
     let width: u32 = 

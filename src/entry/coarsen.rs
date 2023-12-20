@@ -7,10 +7,12 @@ use graph::graph::GraphPos;
 use clap::Arg;
 use clap::{ArgMatches, Command};
 
+const GRAPH_JSON: &str = "graph_json";
+
 pub fn coarsen_cli() -> Command {
   Command::new("coarsen")
-    .about("graph coarsen")
-    .arg(Arg::new("json")
+    .about("Coarsen a graph")
+    .arg(Arg::new(GRAPH_JSON)
       .help("The path to the JSON file of your input graph")
       .value_parser(clap::value_parser!(PathBuf))
       .required(true))
@@ -38,7 +40,7 @@ struct Config<'a> {
 
 impl<'a> Config<'a> {
   pub fn new(sub_matches: &'a ArgMatches) -> Result<Self, &'static str> {
-    let file = sub_matches.get_one::<PathBuf>("json").expect("Expecting a JSON graph file");
+    let file = sub_matches.get_one::<PathBuf>(GRAPH_JSON).expect("Expecting a JSON graph file");
     let out = sub_matches.get_one::<PathBuf>("out").expect("Should have a default value");
 
     let depth = 

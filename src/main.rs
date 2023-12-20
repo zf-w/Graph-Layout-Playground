@@ -6,7 +6,7 @@ use clap::{Command, ArgMatches};
 fn cli() -> Command {
   Command::new("graph")
   .author("Zhifeng Wang, zhifeng5@illinois.edu")
-  .about("A command line tool for Graph Visualization")
+  .about("A mini command line tool for Graph Visualization")
   .subcommand_required(true)
   .allow_external_subcommands(true)
   .subcommand(
