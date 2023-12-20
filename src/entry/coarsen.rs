@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::{fs, rc::Rc};
 
 use graph::Graph;
@@ -6,15 +7,39 @@ use graph::graph::GraphPos;
 use clap::Arg;
 use clap::{ArgMatches, Command};
 
+pub fn coarsen_cli() -> Command {
+  Command::new("coarsen")
+    .about("graph coarsen")
+    .arg(Arg::new("json")
+      .help("The path to the JSON file of your input graph")
+      .value_parser(clap::value_parser!(PathBuf))
+      .required(true))
+    .arg(
+      clap::Arg::new("out")
+      .short('o')
+      .long("output-name")
+      .help("The name of the output graph json")
+      .value_parser(clap::value_parser!(PathBuf))
+      .default_value("output.json")
+    )
+    .arg(Arg::new("depth")
+      .short('d')
+      .long("depth")
+      .help("The maximum level of coarsening iteration")
+      .default_value("1"))
+}
+
 #[derive(PartialEq, Debug)]
 struct Config<'a> {
-  file: &'a str,
+  file: &'a PathBuf,
+  out: &'a PathBuf,
   level: u16,
 }
 
 impl<'a> Config<'a> {
   pub fn new(sub_matches: &'a ArgMatches) -> Result<Self, &'static str> {
-    let file = sub_matches.get_one::<String>("json").expect("Expecting a JSON graph file");
+    let file = sub_matches.get_one::<PathBuf>("json").expect("Expecting a JSON graph file");
+    let out = sub_matches.get_one::<PathBuf>("out").expect("Should have a default value");
 
     let depth = 
     match sub_matches.get_one::<String>("depth") {
@@ -24,20 +49,17 @@ impl<'a> Config<'a> {
       _ => 1
     };
 
-    Ok(Config { file, level: depth })
+    Ok(Config { file, level: depth, out })
   }
 }
 
-fn coarsen_with_pos(mut g_pos: GraphPos, level: u16) -> Result<(), Box<dyn std::error::Error>> {
+fn coarsen_with_pos(mut g_pos: GraphPos, level: u16) -> Result<GraphPos, Box<dyn std::error::Error>> {
   let mut i: u16 = 0;
   while i < level {
     (_, _, g_pos) = g_pos.coarsen()?;
     i += 1;
   }
-  let g_str = serde_json::to_string(&g_pos)?;
-  fs::write("data/output.graph.json", &g_str)?;
-
-  Ok(())
+  Ok(g_pos)
 }
 
 pub fn run_coarsen(args: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
@@ -50,24 +72,15 @@ pub fn run_coarsen(args: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> 
   
   if position.is_some() && dim.is_some() {
     let g_pos = GraphPos::new(g0, position.unwrap(), dim.unwrap())?;
-    coarsen_with_pos(g_pos, config.level)?;
+    let g_pos1 = coarsen_with_pos(g_pos, config.level)?;
+    let to_write = serde_json::to_string(&g_pos1)?;
+    fs::write(config.out, to_write)?;
   }
 
   Ok(())
 }
 
-pub fn coarsen_cli() -> Command {
-  Command::new("coarsen")
-    .about("graph coarsen")
-    .arg(Arg::new("json")
-      .help("The path to the JSON file of your input graph")
-      .required(true))
-    .arg(Arg::new("depth")
-      .short('d')
-      .long("depth")
-      .help("The maximum level of coarsening iteration")
-      .default_value("1"))
-}
+
 
 #[cfg(test)]
 mod tests {
@@ -81,8 +94,11 @@ mod tests {
   #[test]
   fn config_json_default_depth() {
     let arg_vec = vec![String::from("test"), String::from("data/data.json")];
+    let path = PathBuf::from("data/data.json");
+    let out_exp = PathBuf::from("output.json");
     let expected = Config {
-      file: "data/data.json",
+      file: &path,
+      out: &out_exp,
       level: 1
     };
     let arg_matches = get_arg_matches(arg_vec);
@@ -99,8 +115,11 @@ mod tests {
       String::from("data/data.json"),
       String::from("-d"),
       String::from("2")];
+    let path = PathBuf::from(r"data/data.json");
+    let out_exp = PathBuf::from(r"output.json");
     let expected = Config {
-      file: "data/data.json",
+      file: &path,
+      out: &out_exp,
       level: 2
     };
     let arg_matches = get_arg_matches(arg_vec);

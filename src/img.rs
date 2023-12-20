@@ -1,11 +1,11 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
 pub trait Drawable {
     fn new(w: u32, h: u32) -> Self where Self: Sized;
     fn draw_line_f(&mut self, r0: f32, c0: f32, r1: f32, c1:f32);
-    fn save(&self, path: &str) -> Result<(), Box<dyn std::error::Error>>;
+    fn save(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>>;
 }
 
 pub struct Img {
@@ -63,7 +63,7 @@ impl Drawable for Img {
       Img {w, h, data}
     }
 
-    fn save(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    fn save(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
       let path = Path::new(path);
       let file = File::create(path)?;
       let ref mut w = BufWriter::new(file);
@@ -110,7 +110,7 @@ impl Drawable for Svg {
         }
     }
 
-    fn save(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    fn save(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
       let ans: String = format!(
       r#"
 <svg viewBox="0 0 {} {}" xmlns="http://www.w3.org/2000/svg">
