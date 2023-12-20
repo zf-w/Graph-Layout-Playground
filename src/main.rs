@@ -1,34 +1,19 @@
 use std::process;
 pub mod entry;
 
-use clap::{Command, ArgMatches, Arg};
+use clap::{Command, ArgMatches};
 
 fn cli() -> Command {
   Command::new("graph")
-  .about("A tool for Graph Visualization")
+  .author("Zhifeng Wang, zhifeng5@illinois.edu")
+  .about("A mini command line tool for Graph Visualization")
   .subcommand_required(true)
   .allow_external_subcommands(true)
   .subcommand(
     entry::coarsen_cli()
-    // .arg(arg!(<file> "The JSON file of a graph").required(true))
-    // .arg(arg!(<depth> "The maximum level of coarsening iteration"))
   )
   .subcommand(
-    Command::new("draw")
-    .about("Draw a graph")
-    .arg(
-      Arg::new("json")
-      .help("The path to the JSON file of your input graph")
-      .required(true)
-      // clap::arg!(<file> "The JSON file of a graph").required(true))
-    )
-    .arg(
-      Arg::new("width")
-      .short('w')
-      .long("width")
-      .help("The width of the output image")
-      .default_value("1080")
-    )
+    entry::draw_cli()
   )
 }
 
