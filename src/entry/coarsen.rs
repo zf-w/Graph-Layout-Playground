@@ -13,7 +13,7 @@ pub fn coarsen_cli() -> Command {
   Command::new("coarsen")
     .about("Coarsen a graph")
     .arg(Arg::new(GRAPH_JSON)
-      .help("The path to the JSON file of your input graph")
+      .help("The path to the JSON file of your input graph. The JSON file should be like {\"indices\": [0, 1, 1, 2], \"position\": [1, 1, 2, 2, 3, 3], \"dim\": 2}.")
       .value_parser(clap::value_parser!(PathBuf))
       .required(true))
     .arg(

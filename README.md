@@ -40,7 +40,7 @@ Options:
 Usage: graph.exe coarsen [OPTIONS] <graph_json>
 
 Arguments:
-  <graph_json>  The path to the JSON file of your input graph
+  <graph_json>  The path to the JSON file of your input graph. The JSON file should be like {"indices": [0, 1, 1, 2], "position": [1, 1, 2, 2, 3, 3], "dim": 2}.
 
 Options:
   -o, --output-name <out>  The name of the output graph json [default: output.json]
@@ -54,7 +54,7 @@ Options:
 Usage: graph.exe draw [OPTIONS] <graph_json>
 
 Arguments:
-  <graph_json>  The path to the JSON file of your input graph
+  <graph_json>  The path to the JSON file of your input graph. The JSON file should be like {"indices": [0, 1, 1, 2], "position": [1, 1, 2, 2, 3, 3], "dim": 2}.
 
 Options:
   -o, --output-name <out>  The name of the output image [default: output.svg]

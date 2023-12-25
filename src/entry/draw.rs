@@ -12,7 +12,7 @@ pub fn draw_cli() -> clap::Command {
     .about("Draw a graph")
     .arg(
       clap::Arg::new(GRAPH_JSON)
-      .help("The path to the JSON file of your input graph")
+      .help("The path to the JSON file of your input graph. The JSON file should be like {\"indices\": [0, 1, 1, 2], \"position\": [1, 1, 2, 2, 3, 3], \"dim\": 2}.")
       .value_parser(clap::value_parser!(PathBuf))
       .required(true)
       // clap::arg!(<file> "The JSON file of a graph").required(true))
